@@ -1,1 +1,273 @@
-<nav></nav>
+<style>
+  /* Section Bar */
+  .section-bar{
+    width: 100%;
+    background: #151515;
+    border-top: 1px solid #0f0f0f;
+    border-bottom: 1px solid #0f0f0f;
+  }
+
+  .section-bar__inner{
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 0;
+  }
+
+  .sb-cell{
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .sb-btn{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+    border-radius: 0;
+
+    background: #1f1f1f;
+    border: 1px solid #2e2e2e;
+
+    color: #b3b3b3;
+    text-decoration: none;
+
+    padding: 8px 12px;
+  }
+
+  .sb-btn__en{
+    font-weight: 800;
+    font-size: 18px;
+    line-height: 1.05;
+  }
+
+  .sb-btn__ko{
+    margin-top: 2px;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 1.05;
+    opacity: 0.9;
+  }
+
+  .sb-search__input{
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    border-radius: 0;
+    border: 1px solid #2b2b2b;
+    background: #141414;
+
+    color: #b3b3b3;
+    padding: 8px 12px;
+
+    font-size: 15px;
+    line-height: 1.1;
+
+    outline: none;
+    appearance: none;
+  }
+
+  .sb-search__input::placeholder{
+    color: #6f6f6f;
+  }
+
+  /* =========================================================
+     Section overlay (봉인된 정상화 세팅 유지)
+  ========================================================= */
+  .section-overlay{
+    display: none;
+    background: #111;
+
+    border-top: 1px solid #0f0f0f;
+    border-bottom: 1px solid #0f0f0f;
+
+    position: fixed;
+    z-index: 9999;
+
+    top: 0;
+    left: 0;
+    width: 0;
+    height: auto;
+    max-height: none;
+
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
+    touch-action: pan-y;
+  }
+
+  .section-overlay.is-open{
+    display: block;
+  }
+
+  .section-overlay a{
+    display: block;
+    padding: 12px 14px;
+    text-decoration: none;
+    color: #b3b3b3;
+    border-top: 1px solid #1b1b1b;
+  }
+
+  .section-overlay a:first-child{
+    border-top: 0;
+  }
+
+  .section-overlay a div:first-child{
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .section-overlay a div:last-child{
+    margin-top: 2px;
+    font-size: 12px;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* =========================================================
+     Search overlay (신규)
+     - 결과: "제목 리스트만"
+     - 위치/폭: JS가 검색 input 기준으로 픽셀 지정
+     - 높이: auto + maxHeight 스크롤
+  ========================================================= */
+  .search-overlay{
+    display: none;
+    background: #111;
+
+    border-top: 1px solid #0f0f0f;
+    border-bottom: 1px solid #0f0f0f;
+
+    position: fixed;
+    z-index: 9999;
+
+    top: 0;
+    left: 0;
+    width: 0;
+    height: auto;
+    max-height: none;
+
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
+    touch-action: pan-y;
+  }
+
+  .search-overlay.is-open{
+    display: block;
+  }
+
+  .search-overlay .so-head{
+    padding: 10px 12px;
+    border-bottom: 1px solid #1b1b1b;
+    color: #b3b3b3;
+    font-size: 12px;
+    opacity: 0.9;
+  }
+
+  .search-overlay .so-list{
+    margin: 0;
+    padding: 0;
+  }
+
+  .search-overlay .so-item,
+  .search-overlay .so-suggest{
+    display: block;
+    width: 100%;
+    text-align: left;
+
+    padding: 12px 14px;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #1b1b1b;
+
+    color: #b3b3b3;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .search-overlay .so-item:first-child,
+  .search-overlay .so-suggest:first-child{
+    border-top: 0;
+  }
+
+  .search-overlay .so-item:hover,
+  .search-overlay .so-suggest:hover{
+    background: #161616;
+  }
+
+  .search-overlay .so-title{
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .search-overlay .so-sub{
+    margin-top: 2px;
+    font-size: 12px;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+
+<nav class="section-bar">
+  <div class="section-bar__inner wrap">
+    <div class="sb-cell">
+      <a class="sb-btn" href="/">
+        <div class="sb-btn__en">Home</div>
+        <div class="sb-btn__ko">홈화면</div>
+      </a>
+    </div>
+
+    <div class="sb-cell" id="sectionCell">
+      <button class="sb-btn" id="sectionToggleBtn" type="button"
+        aria-expanded="false" aria-controls="sectionOverlay">
+        <div class="sb-btn__en">Section</div>
+        <div class="sb-btn__ko">섹션선택</div>
+      </button>
+
+      <div class="section-overlay" id="sectionOverlay" aria-hidden="true">
+        <a href="/list/"><div>전체목록</div><div>List</div></a>
+        <a href="/beginning/"><div>첫글부터</div><div>Beginning</div></a>
+        <a href="/power-system/"><div>권력과 시스템</div><div>Power&System</div></a>
+        <a href="/human-behavior/"><div>인간행동</div><div>Human behavior</div></a>
+        <a href="/reflections/"><div>보편성 성찰</div><div>Reflections on the Human Condition</div></a>
+        <a href="/notes-on-living/"><div>삶에 대한 단상</div><div>Notes on Living</div></a>
+        <a href="/notes-sparks/"><div>아이디어 기록</div><div>Notes&Sparks</div></a>
+      </div>
+    </div>
+
+    <div class="sb-cell" id="searchCell">
+      <!-- ✅ 검색 input에 id 부여 -->
+      <input
+        class="sb-search__input"
+        id="searchInput"
+        type="search"
+        placeholder="Search / 검색"
+        autocomplete="off"
+        spellcheck="false"
+        aria-expanded="false"
+        aria-controls="searchOverlay"
+      />
+
+      <!-- ✅ 검색 오버레이 DOM (fixed라서 레이아웃 침범 없음) -->
+      <div class="search-overlay" id="searchOverlay" aria-hidden="true">
+        <div class="so-head" id="searchOverlayHead">Search</div>
+        <div class="so-list" id="searchOverlayList"></div>
+      </div>
+    </div>
+  </div>
+</nav>
