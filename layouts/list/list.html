@@ -1,13 +1,16 @@
 {{ define "main" }}
 <main class="wrap">
-  <h1>전체글</h1>
+  <h1>{{ .Title }}</h1>
 
   {{ $pages := .Site.RegularPages.ByDate.Reverse }}
+
   <ol class="postlist">
-    {{ range $i, $p := $pages }}
+    {{ $i := 0 }}
+    {{ range $pages }}
+      {{ $i = add $i 1 }}
       <li>
-        <span class="postnum">{{ add $i 1 }}.</span>
-        <a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a>
+        <span class="postnum">{{ $i }}.</span>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
       </li>
     {{ end }}
   </ol>
