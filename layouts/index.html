@@ -1,14 +1,12 @@
 {{ define "main" }}
-  <main class="wrap">
-    <h1>Home</h1>
+  <h1>Home</h1>
 
-    <ul>
-      {{ range .Site.RegularPages.ByDate.Reverse }}
-        <li>
-          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-          {{ with .Date }} <small> — {{ .Format "2006-01-02" }}</small>{{ end }}
-        </li>
-      {{ end }}
-    </ul>
-  </main>
+  <ul>
+    {{ range .Site.RegularPages.ByDate.Reverse }}
+      <li>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ with .Date }} <small> — {{ .Format "2006-01-02" }}</small>{{ end }}
+      </li>
+    {{ end }}
+  </ul>
 {{ end }}
