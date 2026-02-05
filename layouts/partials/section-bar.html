@@ -81,7 +81,8 @@
   }
 
   /* =========================================================
-     Section overlay (봉인된 정상화 세팅 유지)
+     Section overlay
+     - 본문 침범 0 (fixed)
   ========================================================= */
   .section-overlay{
     display: none;
@@ -122,12 +123,12 @@
     border-top: 0;
   }
 
-  .section-overlay a div:first-child{
+  .section-overlay a .so-ko{
     font-weight: 700;
     line-height: 1.15;
   }
 
-  .section-overlay a div:last-child{
+  .section-overlay a .so-en{
     margin-top: 2px;
     font-size: 12px;
     opacity: 0.85;
@@ -137,10 +138,7 @@
   }
 
   /* =========================================================
-     Search overlay (신규)
-     - 결과: "제목 리스트만"
-     - 위치/폭: JS가 검색 input 기준으로 픽셀 지정
-     - 높이: auto + maxHeight 스크롤
+     Search overlay (DOM만 유지)
   ========================================================= */
   .search-overlay{
     display: none;
@@ -225,6 +223,7 @@
 
 <nav class="section-bar">
   <div class="section-bar__inner wrap">
+    <!-- Home -->
     <div class="sb-cell">
       <a class="sb-btn" href="/">
         <div class="sb-btn__en">Home</div>
@@ -232,6 +231,7 @@
       </a>
     </div>
 
+    <!-- Section -->
     <div class="sb-cell" id="sectionCell">
       <button class="sb-btn" id="sectionToggleBtn" type="button"
         aria-expanded="false" aria-controls="sectionOverlay">
@@ -240,18 +240,36 @@
       </button>
 
       <div class="section-overlay" id="sectionOverlay" aria-hidden="true">
-        <a href="/list/"><div>전체목록</div><div>List</div></a>
-        <a href="/beginning/"><div>첫글부터</div><div>Beginning</div></a>
-        <a href="/power-system/"><div>권력과 시스템</div><div>Power&System</div></a>
-        <a href="/human-behavior/"><div>인간행동</div><div>Human behavior</div></a>
-        <a href="/reflections/"><div>보편성 성찰</div><div>Reflections on the Human Condition</div></a>
-        <a href="/notes-on-living/"><div>삶에 대한 단상</div><div>Notes on Living</div></a>
-        <a href="/notes-sparks/"><div>아이디어 기록</div><div>Notes&Sparks</div></a>
+        <!-- ✅ 고정 2개: 전체글 / 첫글부터 (원하면 나중에 hugo.toml로도 뺄 수 있음) -->
+        <a href="/all/">
+          <div class="so-ko">전체글</div>
+          <div class="so-en">All</div>
+        </a>
+        <a href="/beginning/">
+          <div class="so-ko">첫글부터</div>
+          <div class="so-en">Beginning</div>
+        </a>
+
+        <!-- ✅ 사용자가 hugo.toml에서 관리하는 섹션들 -->
+        {{ $menu := .Site.Params.section_menu }}
+        {{ if $menu }}
+          {{ range $menu }}
+            {{ $slug := .slug | default "" }}
+            {{ if $slug }}
+              {{ $ko := .name_ko | default $slug }}
+              {{ $en := .name_en | default $slug }}
+              <a href="/{{ $slug }}/">
+                <div class="so-ko">{{ $ko }}</div>
+                <div class="so-en">{{ $en }}</div>
+              </a>
+            {{ end }}
+          {{ end }}
+        {{ end }}
       </div>
     </div>
 
+    <!-- Search -->
     <div class="sb-cell" id="searchCell">
-      <!-- ✅ 검색 input에 id 부여 -->
       <input
         class="sb-search__input"
         id="searchInput"
@@ -263,7 +281,6 @@
         aria-controls="searchOverlay"
       />
 
-      <!-- ✅ 검색 오버레이 DOM (fixed라서 레이아웃 침범 없음) -->
       <div class="search-overlay" id="searchOverlay" aria-hidden="true">
         <div class="so-head" id="searchOverlayHead">Search</div>
         <div class="so-list" id="searchOverlayList"></div>
