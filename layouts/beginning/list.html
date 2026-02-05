@@ -2,19 +2,27 @@
 
 <h1 class="section-title">{{ .Title }}</h1>
 
-{{/* 1) 전체 글을 대상으로 하되, list 섹션(전체목록 페이지 자체)과 beginning 섹션(이 페이지 자체)은 제외 */}}
 {{ $pages := where .Site.RegularPages "Section" "ne" "list" }}
-{{ $pages = where $pages "Section" "ne" "beginning" }}
 
 {{ if $pages }}
 
-  <ol class="beginning-list">
-    {{ range sort $pages "Date" "asc" }}
-      <li class="beginning-item">
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-      </li>
-    {{ end }}
-  </ol>
+  {{ range sort $pages "Date" "asc" }}
+    <a href="{{ .RelPermalink }}" class="post-card">
+      <article>
+
+        <h2 class="post-title">{{ .Title }}</h2>
+
+        {{ with .Summary }}
+          <p class="post-summary">{{ . }}</p>
+        {{ end }}
+
+        <div class="post-meta">
+          {{ .Date.Format "2006-01-02" }}
+        </div>
+
+      </article>
+    </a>
+  {{ end }}
 
 {{ else }}
 
@@ -28,23 +36,33 @@
   margin: 0 0 18px 0;
 }
 
-.beginning-list{
-  margin: 0;
-  padding-left: 20px;
-  line-height: 1.8;
-}
-
-.beginning-item{
-  margin: 8px 0;
-}
-
-.beginning-item a{
+.post-card{
+  display: block;
   text-decoration: none;
   color: inherit;
+  margin-bottom: 28px;
 }
 
-.beginning-item a:hover{
-  text-decoration: underline;
+.post-card:hover{
+  opacity: 0.95;
+}
+
+.post-title{
+  font-size: 1.6rem;
+  line-height: 1.3;
+  margin: 0 0 6px 0;
+}
+
+.post-summary{
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  margin: 0 0 6px 0;
+}
+
+.post-meta{
+  font-size: 12px;
+  opacity: 0.6;
 }
 </style>
 
