@@ -1,20 +1,71 @@
 baseURL = "/"
 languageCode = "ko-kr"
-title = "Shadow J."
+title = "My Notes"
 enableRobotsTXT = true
 
 [pagination]
-  pageSize = 10
+  pageSize = 20
 
 [params]
-  subtitle_en = "Independent notes on systems, power, and human behavior"
-  subtitle_ko = "시스템, 권력 그리고 인간 행동에 관한 독립적 기록"
+  subtitle_en = ""
+  subtitle_ko = ""
+
+  # =========================
+  # Section menu (editable)
+  # - 일반인용 기본 9개 + (Home은 고정)
+  # - slug = URL path (e.g., /economics/)
+  # =========================
+
+  [[params.section_menu]]
+    name_ko = "전체글"
+    name_en = "All"
+    slug = "all"
+
+  [[params.section_menu]]
+    name_ko = "첫글부터"
+    name_en = "Beginning"
+    slug = "beginning"
+
+  [[params.section_menu]]
+    name_ko = "인문학"
+    name_en = "Humanities"
+    slug = "humanities"
+
+  [[params.section_menu]]
+    name_ko = "정치학"
+    name_en = "Politics"
+    slug = "politics"
+
+  [[params.section_menu]]
+    name_ko = "경제학"
+    name_en = "Economics"
+    slug = "economics"
+
+  [[params.section_menu]]
+    name_ko = "심리학"
+    name_en = "Psychology"
+    slug = "psychology"
+
+  [[params.section_menu]]
+    name_ko = "시사논평"
+    name_en = "Commentary"
+    slug = "commentary"
+
+  [[params.section_menu]]
+    name_ko = "독서노트"
+    name_en = "Reading Notes"
+    slug = "reading-notes"
+
+  [[params.section_menu]]
+    name_ko = "개인기록"
+    name_en = "Personal"
+    slug = "personal"
 
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
 
-# ✅ 검색 인덱스용 (Home에서 /index.json 생성)
+# 검색 인덱스(옵션). 보급형 1차에서도 유지해도 되지만, 검색 UI 붙일 때만 의미 있음.
 [outputs]
   home = ["HTML", "JSON"]
