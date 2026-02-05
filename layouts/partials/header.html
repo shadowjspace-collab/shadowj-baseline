@@ -1,26 +1,11 @@
-{{/* Page header image mapping by URL path */}}
-{{ $img := "img/shadowj.png" }}
-
-{{ if eq .RelPermalink "/power-system/" }}
-  {{ $img = "img/power.png" }}
-{{ else if eq .RelPermalink "/human-behavior/" }}
-  {{ $img = "img/human.png" }}
-{{ else if eq .RelPermalink "/reflections/" }}
-  {{ $img = "img/reflections.png" }}
-{{ else if eq .RelPermalink "/notes-on-living/" }}
-  {{ $img = "img/life.png" }}
-{{ else if eq .RelPermalink "/notes-sparks/" }}
-  {{ $img = "img/ideas.png" }}
-{{ else if eq .RelPermalink "/list/" }}
-  {{ $img = "img/shadowj.png" }}
-{{ else if eq .RelPermalink "/beginning/" }}
-  {{ $img = "img/shadowj.png" }}
-{{ else if eq .RelPermalink "/" }}
-  {{ $img = "img/shadowj.png" }}
-{{ end }}
-
-<a href="{{ "/" | relURL }}" aria-label="Go to Home">
-  <header class="top__banner">
-    <img src="{{ $img | relURL }}" alt="Shadow J Header">
-  </header>
-</a>
+<header class="top__banner">
+  {{ if .IsHome }}
+    <a href="/" aria-label="Go to Home">
+      <img src="/img/main.png" alt="Main header" />
+    </a>
+  {{ else }}
+    <a href="/" aria-label="Go to Home">
+      <img src="/img/being.png" alt="Being header" />
+    </a>
+  {{ end }}
+</header>
