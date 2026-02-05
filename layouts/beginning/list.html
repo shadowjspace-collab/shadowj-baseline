@@ -2,11 +2,12 @@
 
 <h1 class="section-title">{{ .Title }}</h1>
 
-{{ $pages := where .Site.RegularPages "Section" "not in" (slice "list" "beginning") }}
+{{ $pages := where .Site.RegularPages "Section" "ne" "list" }}
+{{ $pages = where $pages "Section" "ne" "beginning" }}
 
 {{ if $pages }}
 
-  {{ range $pages.ByDate }}
+  {{ range sort $pages "Date" "asc" }}
 
     <a href="{{ .RelPermalink }}" class="post-card">
       <article>
