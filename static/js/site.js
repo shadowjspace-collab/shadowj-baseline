@@ -5,6 +5,14 @@
   function qs(sel) { return document.querySelector(sel); }
   function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
+  function clearOverlayInlineStyle(overlayEl) {
+    if (!overlayEl) return;
+    overlayEl.style.left = "";
+    overlayEl.style.top = "";
+    overlayEl.style.width = "";
+    overlayEl.style.maxHeight = "";
+  }
+
   function setOverlayRect(overlayEl, anchorEl) {
     if (!overlayEl || !anchorEl) return;
 
@@ -17,7 +25,6 @@
     overlayEl.style.top = top + "px";
     overlayEl.style.width = width + "px";
 
-    // 화면 아래로 남는 만큼만 스크롤 허용
     var maxH = window.innerHeight - top - 8;
     overlayEl.style.maxHeight = clamp(maxH, 140, 520) + "px";
   }
@@ -47,23 +54,10 @@
   // Main
   // =========================
   document.addEventListener("DOMContentLoaded", function () {
-    // ----- Section overlay toggle -----
+    // ----- Section overlay -----
     var sectionCell = qs("#sectionCell");
     var sectionBtn = qs("#sectionToggleBtn");
     var sectionOverlay = qs("#sectionOverlay");
-
-    if (sectionBtn && sectionOverlay) {
-      sectionBtn.addEventListener("click", function () {
-        var isOpen = sectionOverlay.classList.contains("is-open");
-        if (isOpen) {
-          closeOverlay(sectionOverlay);
-          sectionBtn.setAttribute("aria-expanded", "false");
-        } else {
-          openOverlay(sectionOverlay, sectionCell || sectionBtn);
-          sectionBtn.setAttribute("aria-expanded", "true");
-        }
-      });
-    }
 
     // ----- Search overlay -----
     var searchCell = qs("#searchCell");
@@ -82,7 +76,6 @@
       indexLoading = fetch("/index.json", { cache: "no-store" })
         .then(function (res) { return res.json(); })
         .then(function (data) {
-          // data가 배열이라고 가정 (Hugo에서 index.json 생성)
           indexCache = Array.isArray(data) ? data : [];
           return indexCache;
         })
@@ -113,7 +106,6 @@
         var content = (it.content || "").toString();
         var href = (it.permalink || it.relpermalink || it.url || "").toString();
 
-        // 제목/요약/본문 텍스트에서 단어검색
         var hay = (title + " " + summary + " " + content).toLowerCase();
         if (hay.indexOf(query) !== -1 && href) {
           results.push({ title: title, summary: summary, href: href });
@@ -122,7 +114,6 @@
 
       if (headEl) headEl.textContent = "Results: " + results.length;
 
-      // 너무 많이 뜨면 UX 지저분해져서 상한
       var limit = 30;
       for (var j = 0; j < results.length && j < limit; j++) {
         var r = results[j];
@@ -141,9 +132,27 @@
 
         a.appendChild(t);
         a.appendChild(s);
-
         listEl.appendChild(a);
       }
+    }
+
+    // =========================
+    // 강제 리셋(핵심)
+    // =========================
+    function hardResetUI() {
+      // 1) 섹션 닫기 + 상태정리
+      if (sectionOverlay) closeOverlay(sectionOverlay);
+      if (sectionBtn) sectionBtn.setAttribute("aria-expanded", "false");
+      clearOverlayInlineStyle(sectionOverlay);
+
+      // 2) 검색 닫기 + 상태정리
+      if (searchOverlay) closeOverlay(searchOverlay);
+      if (searchInput) searchInput.setAttribute("aria-expanded", "false");
+      clearOverlayInlineStyle(searchOverlay);
+
+      // 3) 검색 결과/헤더 초기화
+      if (listEl) listEl.innerHTML = "";
+      if (headEl) headEl.textContent = "Search";
     }
 
     function showSearchOverlay() {
@@ -156,10 +165,39 @@
       if (!searchOverlay || !searchInput) return;
       closeOverlay(searchOverlay);
       searchInput.setAttribute("aria-expanded", "false");
+      clearOverlayInlineStyle(searchOverlay);
     }
 
+    // ----- Section toggle -----
+    if (sectionBtn && sectionOverlay) {
+      sectionBtn.addEventListener("click", function () {
+        // 섹션 열기 전에 검색이 열려있으면 닫아준다(충돌 방지)
+        if (searchOverlay && searchOverlay.classList.contains("is-open")) {
+          hideSearchOverlay();
+        }
+
+        var isOpen = sectionOverlay.classList.contains("is-open");
+        if (isOpen) {
+          closeOverlay(sectionOverlay);
+          sectionBtn.setAttribute("aria-expanded", "false");
+          clearOverlayInlineStyle(sectionOverlay);
+        } else {
+          openOverlay(sectionOverlay, sectionCell || sectionBtn);
+          sectionBtn.setAttribute("aria-expanded", "true");
+        }
+      });
+    }
+
+    // ----- Search behaviors -----
     if (searchInput && searchOverlay) {
+      // 모바일에서 “터치 순간”에 먼저 리셋되게 (focus보다 앞서 실행되는 경우 많음)
+      searchInput.addEventListener("pointerdown", function () {
+        hardResetUI();
+      });
+
+      // 포커스될 때도 확실하게 1번 더 리셋
       searchInput.addEventListener("focus", function () {
+        hardResetUI();
         showSearchOverlay();
         fetchIndexOnce().then(function (items) {
           renderResults(searchInput.value, items);
@@ -181,7 +219,7 @@
       });
     }
 
-    // ----- Global close behaviors -----
+    // ----- Reposition on resize -----
     window.addEventListener("resize", function () {
       if (sectionOverlay && sectionOverlay.classList.contains("is-open")) {
         openOverlay(sectionOverlay, sectionCell || sectionBtn);
@@ -191,16 +229,16 @@
       }
     });
 
+    // ----- Close on outside click -----
     document.addEventListener("click", function (e) {
-      // 섹션 닫기
       if (sectionOverlay && sectionOverlay.classList.contains("is-open")) {
         if (isClickOutside(e, [sectionCell, sectionOverlay])) {
           closeOverlay(sectionOverlay);
           if (sectionBtn) sectionBtn.setAttribute("aria-expanded", "false");
+          clearOverlayInlineStyle(sectionOverlay);
         }
       }
 
-      // 검색 닫기
       if (searchOverlay && searchOverlay.classList.contains("is-open")) {
         if (isClickOutside(e, [searchCell, searchOverlay])) {
           hideSearchOverlay();
@@ -208,12 +246,14 @@
       }
     });
 
+    // ----- Escape closes all -----
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape") return;
 
       if (sectionOverlay && sectionOverlay.classList.contains("is-open")) {
         closeOverlay(sectionOverlay);
         if (sectionBtn) sectionBtn.setAttribute("aria-expanded", "false");
+        clearOverlayInlineStyle(sectionOverlay);
       }
       if (searchOverlay && searchOverlay.classList.contains("is-open")) {
         hideSearchOverlay();
