@@ -1,5 +1,5 @@
 ---
-title: "정치학"
-type: "section"
-outputs: ["HTML"]
+title: "인문학"
+date: 2026-02-06
+draft: false
 ---
