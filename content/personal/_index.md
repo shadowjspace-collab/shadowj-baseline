@@ -1,5 +1,5 @@
 ---
 title: "개인기록"
-type: "section"
-outputs: ["HTML"]
+date: 2026-02-06
+draft: false
 ---
